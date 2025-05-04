@@ -27,6 +27,8 @@ body {
     right: 0;
     bottom: 0;
     overflow: hidden;
+    height: 100vh;
+    width: 100vw;
 }
 
 .view {
@@ -39,6 +41,8 @@ body {
     flex-direction: column;
     background-color: #000;
     overflow: hidden;
+    height: 100vh;
+    width: 100vw;
 }
 
 .view.active {
@@ -118,6 +122,7 @@ button i {
     position: relative;
     margin-top: 3rem;
     height: calc(100vh - 3rem);
+    width: 100vw;
 }
 
 .image-feed {
@@ -239,6 +244,7 @@ button i {
     padding: 1rem;
     -webkit-overflow-scrolling: touch;
     height: calc(100vh - 3rem);
+    width: 100vw;
 }
 
 .categories-list {
@@ -734,16 +740,16 @@ footer {
 @media (max-width: 767px) {
     .image-info {
         height: 12rem;
-        padding-bottom: 3rem;
+        padding-bottom: 4rem;
     }
     
     .image-preview .image-info {
         height: 12rem;
-        padding-bottom: 3rem;
+        padding-bottom: 4rem;
     }
     
     .scroll-indicator {
-        bottom: 1rem;
+        bottom: 1.5rem;
     }
 }
 
@@ -754,5 +760,25 @@ footer {
     
     .image-preview .image-info {
         padding-top: 8rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .app-container {
+        height: 100dvh;
+        width: 100vw;
+    }
+    
+    .view {
+        height: 100dvh;
+        width: 100vw;
+    }
+    
+    .image-container {
+        height: calc(100dvh - 3rem);
+    }
+    
+    .categories-container {
+        height: calc(100dvh - 3rem);
     }
 } 
