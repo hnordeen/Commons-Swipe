@@ -162,7 +162,8 @@ button i {
 
 .license-info {
     font-size: 0.8rem;
-    opacity: 0.8;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0.5rem 0;
 }
 
 .categories-container {
@@ -320,28 +321,4 @@ footer {
     text-align: center;
     margin-top: 2rem;
     color: #666;
-}
-
-/* Add subtle scroll indicator */
-.scroll-indicator {
-    position: absolute;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 1.5rem;
-    animation: bounce 2s infinite;
-    pointer-events: none;
-}
-
-@keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0) translateX(-50%);
-    }
-    40% {
-        transform: translateY(-10px) translateX(-50%);
-    }
-    60% {
-        transform: translateY(-5px) translateX(-50%);
-    }
 } 

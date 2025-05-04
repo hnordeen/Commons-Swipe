@@ -1,0 +1,111 @@
+.image-card {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    transform: translateY(0);
+    transition: transform 0.3s ease-out;
+}
+
+.image-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease-out, object-fit 0.3s ease-out;
+}
+
+.image-card.swiping-up {
+    transform: translateY(-100%);
+}
+
+.image-card.swiping-down {
+    transform: translateY(100%);
+}
+
+.image-card.swiping-up img,
+.image-card.swiping-down img {
+    transform: scale(1.1);
+}
+
+.image-preview {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    right: 0;
+}
+
+.image-preview.next {
+    top: 100%;
+}
+
+.image-preview.previous {
+    bottom: 100%;
+}
+
+.image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+    padding: 20px;
+    padding-bottom: 40px;
+}
+
+.image-info p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.image-info .author-info {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.image-info .license-info {
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.category-item {
+    padding: 15px;
+    margin: 5px 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.category-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.category-item.selected {
+    background: #1a73e8;
+    color: white;
+}
+
+.view {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(0) scale(1);
+    opacity: 1;
+}
+
+.view:not(.active) {
+    transform: translateX(100%) scale(0.95);
+    opacity: 0;
+    pointer-events: none;
+} 
