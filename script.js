@@ -127,7 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         title: page.title.replace('File:', ''),
                         license: page.imageinfo[0].extmetadata?.LicenseShortName?.value || 'Unknown license',
                         author: page.imageinfo[0].extmetadata?.Artist?.value || 'Unknown author',
-                        description: page.extract || ''
+                        description: page.extract || '',
+                        pageUrl: `https://commons.wikimedia.org/wiki/${encodeURIComponent(page.title)}`
                     }));
 
                 if (loadMore) {
@@ -155,11 +156,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function preloadMoreImages() {
-        // Preload next 3 images
+        // Preload next 5 images for smoother transitions
         const preloadIndices = [
             currentIndex + 1,
             currentIndex + 2,
-            currentIndex + 3
+            currentIndex + 3,
+            currentIndex + 4,
+            currentIndex + 5
         ].filter(index => index >= 0 && index < currentImages.length);
 
         preloadIndices.forEach(index => {
@@ -168,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // If we're getting close to the end, load more images
-        if (currentIndex > currentImages.length - 5 && hasMoreImages) {
+        if (currentIndex > currentImages.length - 10 && hasMoreImages) {
             loadImages(true);
         }
     }
@@ -186,41 +189,50 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="image-info">
                     <p>${image.author}</p>
                     <p class="license-info">${image.license}</p>
+                    <a href="${image.pageUrl}" target="_blank" class="info-button">
+                        <i class="fas fa-info-circle"></i>
+                    </a>
                     ${image.description ? `<p>${image.description}</p>` : ''}
+                </div>
+                <div class="scroll-indicator">
+                    <i class="fas fa-chevron-down"></i>
                 </div>
             </div>
         `;
     }
 
     function setupSwipeHandlers() {
+        let touchStartY = 0;
+        let touchEndY = 0;
+        let touchStartTime = 0;
+        let touchEndTime = 0;
+        let isScrolling = false;
+
         imageFeed.addEventListener('touchstart', (e) => {
             touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+            isScrolling = false;
         });
 
         imageFeed.addEventListener('touchmove', (e) => {
             touchEndY = e.touches[0].clientY;
-            const diff = touchStartY - touchEndY;
+            const distance = Math.abs(touchStartY - touchEndY);
             
-            // Show swipe indicators
-            if (diff > 50) {
-                swipeUpIndicator.classList.add('active');
-                swipeDownIndicator.classList.remove('active');
-            } else if (diff < -50) {
-                swipeDownIndicator.classList.add('active');
-                swipeUpIndicator.classList.remove('active');
-            } else {
-                swipeUpIndicator.classList.remove('active');
-                swipeDownIndicator.classList.remove('active');
+            // If we've moved more than 10px, consider it a swipe
+            if (distance > 10) {
+                e.preventDefault();
+                isScrolling = true;
             }
-        });
+        }, { passive: false });
 
         imageFeed.addEventListener('touchend', () => {
-            swipeUpIndicator.classList.remove('active');
-            swipeDownIndicator.classList.remove('active');
+            touchEndTime = Date.now();
+            const timeDiff = touchEndTime - touchStartTime;
+            const distance = Math.abs(touchStartY - touchEndY);
+            const velocity = distance / timeDiff;
             
-            const diff = touchStartY - touchEndY;
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) {
+            if (isScrolling && (distance > 30 || (distance > 20 && velocity > 0.3))) {
+                if (touchStartY > touchEndY) {
                     nextImage();
                 } else {
                     previousImage();
@@ -233,41 +245,42 @@ document.addEventListener('DOMContentLoaded', () => {
         let lastScrollTop = 0;
         let lastScrollTime = Date.now();
         let scrollTimeout;
+        let isTouchDevice = 'ontouchstart' in window;
 
-        window.addEventListener('scroll', () => {
-            const now = Date.now();
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            const scrollDiff = scrollTop - lastScrollTop;
-            const timeDiff = now - lastScrollTime;
-            
-            // Clear any existing timeout
-            clearTimeout(scrollTimeout);
-            
-            // If scrolling quickly (more than 50px in less than 100ms)
-            if (Math.abs(scrollDiff) > 50 && timeDiff < 100) {
-                if (scrollDiff > 0) {
-                    nextImage();
-                } else {
-                    previousImage();
-                }
-                window.scrollTo(0, 0);
-            } else {
-                // For slower scrolling, use the original timeout-based approach
-                scrollTimeout = setTimeout(() => {
-                    if (Math.abs(scrollDiff) > 50) {
-                        if (scrollDiff > 0) {
-                            nextImage();
-                        } else {
-                            previousImage();
-                        }
-                        window.scrollTo(0, 0);
+        // Only add scroll handler for non-touch devices
+        if (!isTouchDevice) {
+            window.addEventListener('scroll', () => {
+                const now = Date.now();
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const scrollDiff = scrollTop - lastScrollTop;
+                const timeDiff = now - lastScrollTime;
+                
+                clearTimeout(scrollTimeout);
+                
+                if (Math.abs(scrollDiff) > 50 && timeDiff < 100) {
+                    if (scrollDiff > 0) {
+                        nextImage();
+                    } else {
+                        previousImage();
                     }
-                }, 100);
-            }
-            
-            lastScrollTop = scrollTop;
-            lastScrollTime = now;
-        });
+                    window.scrollTo(0, 0);
+                } else {
+                    scrollTimeout = setTimeout(() => {
+                        if (Math.abs(scrollDiff) > 50) {
+                            if (scrollDiff > 0) {
+                                nextImage();
+                            } else {
+                                previousImage();
+                            }
+                            window.scrollTo(0, 0);
+                        }
+                    }, 100);
+                }
+                
+                lastScrollTop = scrollTop;
+                lastScrollTime = now;
+            });
+        }
     }
 
     function setupKeyboardNavigation() {
