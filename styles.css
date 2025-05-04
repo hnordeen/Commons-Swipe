@@ -624,7 +624,7 @@ footer {
 
 .image-card .info-link {
     position: fixed;
-    top: 3.5rem;
+    top: 1.5rem;
     right: 1rem;
     color: white;
     z-index: 1000;
@@ -780,5 +780,59 @@ footer {
     
     .categories-container {
         height: calc(100dvh - 3rem);
+    }
+}
+
+@supports (-webkit-touch-callout: none) {
+    .app-container {
+        height: -webkit-fill-available;
+        min-height: -webkit-fill-available;
+    }
+    
+    .view {
+        height: -webkit-fill-available;
+        min-height: -webkit-fill-available;
+    }
+    
+    .image-container {
+        height: calc(-webkit-fill-available - 3rem);
+    }
+    
+    .categories-container {
+        height: calc(-webkit-fill-available - 3rem);
+    }
+    
+    .image-info {
+        padding-bottom: max(4rem, env(safe-area-inset-bottom, 4rem));
+    }
+    
+    .image-preview .image-info {
+        padding-bottom: max(4rem, env(safe-area-inset-bottom, 4rem));
+    }
+}
+
+@media (max-width: 767px) {
+    .image-info {
+        height: 12rem;
+        padding-bottom: 4rem;
+    }
+    
+    .image-preview .image-info {
+        height: 12rem;
+        padding-bottom: 4rem;
+    }
+    
+    .scroll-indicator {
+        bottom: 1.5rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .image-info {
+        padding-top: 8rem;
+    }
+    
+    .image-preview .image-info {
+        padding-top: 8rem;
     }
 } 
