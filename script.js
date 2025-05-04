@@ -1,3 +1,7 @@
+/*
+ * Commons Swipe - Prototype
+ * A prototype implementation for browsing Wikimedia Commons images
+ */
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const mainView = document.getElementById('mainView');
