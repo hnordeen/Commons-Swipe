@@ -54,6 +54,11 @@ header {
     align-items: center;
     height: 3rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
 }
 
 h1 {
@@ -105,6 +110,7 @@ button i {
     flex: 1;
     overflow: hidden;
     position: relative;
+    margin-top: 3rem;
 }
 
 .image-feed {
@@ -164,10 +170,10 @@ button i {
     background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
     padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
     z-index: 2;
-    height: 12rem;
+    height: 16rem;
     background-size: 100% 100%;
     background-position: bottom;
-    padding-top: 2rem;
+    padding-top: 4rem;
 }
 
 .image-info p {
@@ -213,6 +219,7 @@ button i {
     flex-direction: column;
     background-color: #000;
     height: 100vh;
+    margin-top: 3rem;
 }
 
 #categoriesView.active {
@@ -466,11 +473,11 @@ footer {
     flex-direction: column;
     gap: 0.5rem;
     opacity: 0.7;
-    height: 12rem;
+    height: 16rem;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
     background-size: 100% 100%;
     background-position: bottom;
-    padding-top: 2rem;
+    padding-top: 4rem;
 }
 
 .image-preview .image-info p {
