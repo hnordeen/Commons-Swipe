@@ -640,7 +640,8 @@ footer {
 .scroll-indicator {
     position: absolute;
     bottom: 0.5rem;
-    left: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
     color: rgba(255, 255, 255, 0.7);
     font-size: 1.5rem;
     animation: bounce 2s 1;
@@ -651,18 +652,18 @@ footer {
 
 .scroll-indicator:hover {
     color: rgba(255, 255, 255, 1);
-    transform: scale(1.1);
+    transform: translateX(-50%) scale(1.1);
 }
 
 @keyframes bounce {
     0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0);
+        transform: translateY(0) translateX(-50%);
     }
     40% {
-        transform: translateY(-10px);
+        transform: translateY(-10px) translateX(-50%);
     }
     60% {
-        transform: translateY(-5px);
+        transform: translateY(-5px) translateX(-50%);
     }
 }
 
