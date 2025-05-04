@@ -25,6 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const topCategories = [
         'Quality_images',
         'Featured_pictures',
+        'Cats',
+        'Dogs',
         'Animals',
         'Architecture',
         'Art',
@@ -72,9 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Chemistry',
         'Climate',
         'Economy',
-        'Energy',
-        'Dogs',
-        'Cats'
+        'Energy'
     ];
 
     // Add local storage keys

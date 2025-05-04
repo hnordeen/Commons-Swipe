@@ -174,6 +174,7 @@ button i {
     flex: 1;
     overflow-y: auto;
     padding: 1rem;
+    padding-bottom: 4rem;
     background-color: #000;
 }
 
