@@ -130,26 +130,7 @@ button i {
     transform: translateY(0);
     will-change: transform;
     z-index: 2;
-}
-
-.image-card.current {
-    top: 0;
-    transform: translateY(0);
-    z-index: 2;
-}
-
-.image-card.next {
-    top: 0;
-    transform: translateY(100%);
-    z-index: 1;
-    pointer-events: none;
-}
-
-.image-card.previous {
-    top: 0;
-    transform: translateY(-100%);
-    z-index: 1;
-    pointer-events: none;
+    overflow: hidden;
 }
 
 .image-card img {
@@ -158,6 +139,11 @@ button i {
     object-fit: cover;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform;
+    opacity: 0;
+}
+
+.image-card.loaded img {
+    opacity: 1;
 }
 
 .image-card img:hover {
@@ -178,6 +164,10 @@ button i {
     background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
     padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
     z-index: 2;
+    height: 12rem;
+    background-size: 100% 100%;
+    background-position: bottom;
+    padding-top: 2rem;
 }
 
 .image-info p {
@@ -476,6 +466,11 @@ footer {
     flex-direction: column;
     gap: 0.5rem;
     opacity: 0.7;
+    height: 12rem;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    background-size: 100% 100%;
+    background-position: bottom;
+    padding-top: 2rem;
 }
 
 .image-preview .image-info p {

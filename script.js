@@ -193,7 +193,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 currentIndex = 0;
                 displayCurrentImage();
-                preloadMoreImages();
             } else {
                 // If no new images, clear viewed images and try again
                 clearViewedImages();
@@ -202,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentImages = freshImages;
                     currentIndex = 0;
                     displayCurrentImage();
-                    preloadMoreImages();
                 } else {
                     imageFeed.innerHTML = '<div class="image-card"><p>No new images found</p></div>';
                 }
@@ -372,8 +370,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function preloadMoreImages() {
         if (currentImages.length === 0) return;
         
-        // Preload next 5 images (increased from 3)
-        for (let i = 1; i <= 5; i++) {
+        // Preload next 3 images in memory (not displayed)
+        for (let i = 1; i <= 3; i++) {
             const nextIndex = (currentIndex + i) % currentImages.length;
             const nextImage = currentImages[nextIndex];
             const img = new Image();
@@ -392,25 +390,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentImages.length === 0) return;
         
         const currentImage = currentImages[currentIndex];
-        const nextImage = currentImages[(currentIndex + 1) % currentImages.length];
-        const previousImage = currentImages[(currentIndex - 1 + currentImages.length) % currentImages.length];
         
         // Clear existing content
         imageFeed.innerHTML = '';
         
-        // Create previous image card
-        if (previousImage) {
-            const previousCard = document.createElement('div');
-            previousCard.className = 'image-card previous';
-            previousCard.innerHTML = `
-                <img src="${previousImage.url}" alt="${previousImage.title}">
-            `;
-            imageFeed.appendChild(previousCard);
-        }
-        
         // Create current image card
         const currentCard = document.createElement('div');
-        currentCard.className = 'image-card current';
+        currentCard.className = 'image-card';
         
         const currentImg = new Image();
         currentImg.onload = () => {
@@ -439,15 +425,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <i class="fas fa-info-circle"></i>
             </a>
         `;
+        
+        // Only append the current card
         imageFeed.appendChild(currentCard);
         
-        // Create next image card
-        const nextCard = document.createElement('div');
-        nextCard.className = 'image-card next';
-        nextCard.innerHTML = `
-            <img src="${nextImage.url}" alt="${nextImage.title}">
-        `;
-        imageFeed.appendChild(nextCard);
+        // Preload next image in memory (not displayed)
+        const nextImage = currentImages[(currentIndex + 1) % currentImages.length];
+        const nextImg = new Image();
+        nextImg.src = nextImage.url;
         
         // Preload more images
         preloadMoreImages();
@@ -480,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function getCurrentImage() {
-            return document.querySelector('.image-card.current img');
+            return document.querySelector('.image-card img');
         }
 
         function handleZoom(scale) {
@@ -508,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 touchStartY = e.touches[0].clientY;
                 touchStartTime = Date.now();
                 isScrolling = false;
-                currentCard = document.querySelector('.image-card.current');
+                currentCard = document.querySelector('.image-card');
             }
         });
 
@@ -534,26 +519,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     // Calculate swipe progress
                     const swipeProgress = (touchEndY - touchStartY) / window.innerHeight;
-                    const currentCard = document.querySelector('.image-card.current');
-                    const nextCard = document.querySelector('.image-card.next');
-                    const previousCard = document.querySelector('.image-card.previous');
+                    const currentCard = document.querySelector('.image-card');
                     
-                    if (swipeProgress < 0) {
-                        // Swiping up (next image)
-                        if (currentCard) {
-                            currentCard.style.transform = `translateY(${swipeProgress * 100}%)`;
-                        }
-                        if (nextCard) {
-                            nextCard.style.transform = `translateY(${100 + swipeProgress * 100}%)`;
-                        }
-                    } else {
-                        // Swiping down (previous image)
-                        if (currentCard) {
-                            currentCard.style.transform = `translateY(${swipeProgress * 100}%)`;
-                        }
-                        if (previousCard) {
-                            previousCard.style.transform = `translateY(${-100 + swipeProgress * 100}%)`;
-                        }
+                    if (currentCard) {
+                        currentCard.style.transform = `translateY(${swipeProgress * 100}%)`;
                     }
                 }
             }
@@ -568,10 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (isZooming) {
                 isZooming = false;
-                const img = getCurrentImage();
-                if (img) {
-                    resetImage(img);
-                }
+                // Don't reset zoom on touchend, let it stay at the current scale
             } else if (isScrolling && (Math.abs(swipeProgress) > 0.2 || velocity > 0.3)) {
                 if (swipeProgress < 0) {
                     nextImage();
@@ -579,19 +545,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     previousImage();
                 }
             } else {
-                // Reset positions
-                const currentCard = document.querySelector('.image-card.current');
-                const nextCard = document.querySelector('.image-card.next');
-                const previousCard = document.querySelector('.image-card.previous');
-                
+                // Reset position
+                const currentCard = document.querySelector('.image-card');
                 if (currentCard) {
                     currentCard.style.transform = 'translateY(0)';
-                }
-                if (nextCard) {
-                    nextCard.style.transform = 'translateY(100%)';
-                }
-                if (previousCard) {
-                    previousCard.style.transform = 'translateY(-100%)';
                 }
             }
         });
@@ -600,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
         imageFeed.addEventListener('wheel', (e) => {
             if (e.ctrlKey || e.metaKey) {
                 e.preventDefault();
-                const zoomFactor = 0.01; // Increased zoom factor significantly
+                const zoomFactor = 0.01;
                 const delta = e.deltaY;
                 const newScale = currentScale - delta * zoomFactor;
                 handleZoom(newScale);
