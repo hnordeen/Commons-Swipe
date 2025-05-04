@@ -153,6 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     .map(page => {
                         const license = page.imageinfo?.[0]?.extmetadata?.LicenseShortName?.value;
                         const author = page.imageinfo?.[0]?.extmetadata?.Artist?.value;
+                        // Strip any HTML from the author field
+                        const cleanAuthor = author ? author.replace(/<[^>]*>/g, '') : 'Unknown author';
                         // Use Wikimedia's Special:FilePath with width parameter
                         const imageUrl = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(page.title.replace('File:', ''))}?width=800`;
                         return {
@@ -160,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             title: page.title,
                             url: imageUrl,
                             license: license || 'Unknown license',
-                            author: author || 'Unknown author'
+                            author: cleanAuthor
                         };
                     });
                 
@@ -265,6 +267,15 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }).join('');
 
+        // Update filter button state
+        if (filterButton) {
+            if (currentCategory !== 'Featured_pictures_on_Wikimedia_Commons') {
+                filterButton.classList.add('active');
+            } else {
+                filterButton.classList.remove('active');
+            }
+        }
+
         // Add click handlers
         document.querySelectorAll('.category-item').forEach(item => {
             item.addEventListener('click', async (e) => {
@@ -281,6 +292,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 setSelectedCategory(category);
                 currentImages = [];
                 currentIndex = 0;
+                
+                // Update filter button state
+                if (filterButton) {
+                    if (category !== 'Featured_pictures_on_Wikimedia_Commons') {
+                        filterButton.classList.add('active');
+                    } else {
+                        filterButton.classList.remove('active');
+                    }
+                }
                 
                 // Show loading state
                 showLoading();
@@ -362,6 +382,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function truncateText(text, maxLength = 100) {
+        // Remove file extension
+        text = text.replace(/\.[^/.]+$/, '');
         if (text.length <= maxLength) return text;
         return text.substring(0, maxLength) + '...';
     }
@@ -371,13 +393,24 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const currentImage = currentImages[currentIndex];
         const nextImage = currentImages[(currentIndex + 1) % currentImages.length];
+        const previousImage = currentImages[(currentIndex - 1 + currentImages.length) % currentImages.length];
         
         // Clear existing content
         imageFeed.innerHTML = '';
         
+        // Create previous image card
+        if (previousImage) {
+            const previousCard = document.createElement('div');
+            previousCard.className = 'image-card previous';
+            previousCard.innerHTML = `
+                <img src="${previousImage.url}" alt="${previousImage.title}">
+            `;
+            imageFeed.appendChild(previousCard);
+        }
+        
         // Create current image card
         const currentCard = document.createElement('div');
-        currentCard.className = 'image-card';
+        currentCard.className = 'image-card current';
         
         const currentImg = new Image();
         currentImg.onload = () => {
@@ -406,39 +439,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 <i class="fas fa-info-circle"></i>
             </a>
         `;
-        
-        // Create preview element
-        const preview = document.createElement('div');
-        preview.className = 'image-preview';
-        
-        const previewImg = new Image();
-        previewImg.onload = () => {
-            preview.classList.add('loaded');
-        };
-        previewImg.src = nextImage.url;
-        
-        const nextFileTitle = nextImage.title.replace('File:', '');
-        const nextFileUrl = `${commonsBaseUrl}${encodeURIComponent(nextFileTitle)}`;
-        
-        preview.innerHTML = `
-            <div class="image-loading"></div>
-            <img src="${nextImage.url}" alt="${nextImage.title}">
-            <div class="image-info">
-                <p>${truncateText(nextFileTitle)}</p>
-                <p class="license-info">
-                    ${nextImage.license} by ${nextImage.author || 'Unknown author'}
-                </p>
-            </div>
-            <a href="${nextFileUrl}" 
-               class="info-link" 
-               target="_blank" 
-               rel="noopener noreferrer">
-                <i class="fas fa-info-circle"></i>
-            </a>
-        `;
-        
         imageFeed.appendChild(currentCard);
-        imageFeed.appendChild(preview);
+        
+        // Create next image card
+        const nextCard = document.createElement('div');
+        nextCard.className = 'image-card next';
+        nextCard.innerHTML = `
+            <img src="${nextImage.url}" alt="${nextImage.title}">
+        `;
+        imageFeed.appendChild(nextCard);
         
         // Preload more images
         preloadMoreImages();
@@ -461,14 +470,26 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isResetting) return;
             isResetting = true;
             
-            // First reset the transform
+            currentScale = 1;
             img.style.transform = '';
             img.style.objectFit = 'cover';
             
-            // Then after transform is done, reset object-fit
             setTimeout(() => {
                 isResetting = false;
             }, 300);
+        }
+
+        function getCurrentImage() {
+            return document.querySelector('.image-card.current img');
+        }
+
+        function handleZoom(scale) {
+            const img = getCurrentImage();
+            if (img) {
+                currentScale = Math.max(0.5, Math.min(2, scale));
+                img.style.transform = `scale(${currentScale})`;
+                img.style.objectFit = currentScale < 1 ? 'contain' : 'cover';
+            }
         }
 
         imageFeed.addEventListener('touchstart', (e) => {
@@ -500,20 +521,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     touch2.clientX - touch1.clientX,
                     touch2.clientY - touch1.clientY
                 );
-                currentScale = initialScale * (distance / initialDistance);
-                
-                // Limit scale to between 0.5 and 1
-                currentScale = Math.max(0.5, Math.min(1, currentScale));
-                
-                const img = currentCard.querySelector('img');
-                if (img) {
-                    if (currentScale < 1) {
-                        img.style.objectFit = 'contain';
-                    } else {
-                        img.style.objectFit = 'cover';
-                    }
-                    img.style.transform = `scale(${currentScale})`;
-                }
+                const scale = initialScale * (distance / initialDistance);
+                handleZoom(scale);
                 e.preventDefault();
             } else {
                 touchEndY = e.touches[0].clientY;
@@ -530,24 +539,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     const previousCard = document.querySelector('.image-card.previous');
                     
                     if (swipeProgress < 0) {
-                        // Swiping up
+                        // Swiping up (next image)
                         if (currentCard) {
                             currentCard.style.transform = `translateY(${swipeProgress * 100}%)`;
-                            currentCard.style.opacity = 1 + swipeProgress;
                         }
                         if (nextCard) {
                             nextCard.style.transform = `translateY(${100 + swipeProgress * 100}%)`;
-                            nextCard.style.opacity = -swipeProgress;
                         }
                     } else {
-                        // Swiping down
+                        // Swiping down (previous image)
                         if (currentCard) {
                             currentCard.style.transform = `translateY(${swipeProgress * 100}%)`;
-                            currentCard.style.opacity = 1 - swipeProgress;
                         }
                         if (previousCard) {
                             previousCard.style.transform = `translateY(${-100 + swipeProgress * 100}%)`;
-                            previousCard.style.opacity = swipeProgress;
                         }
                     }
                 }
@@ -563,7 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (isZooming) {
                 isZooming = false;
-                const img = currentCard.querySelector('img');
+                const img = getCurrentImage();
                 if (img) {
                     resetImage(img);
                 }
@@ -581,15 +586,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (currentCard) {
                     currentCard.style.transform = 'translateY(0)';
-                    currentCard.style.opacity = '1';
                 }
                 if (nextCard) {
                     nextCard.style.transform = 'translateY(100%)';
-                    nextCard.style.opacity = '0.3';
                 }
                 if (previousCard) {
                     previousCard.style.transform = 'translateY(-100%)';
-                    previousCard.style.opacity = '0.3';
                 }
             }
         });
@@ -598,19 +600,24 @@ document.addEventListener('DOMContentLoaded', () => {
         imageFeed.addEventListener('wheel', (e) => {
             if (e.ctrlKey || e.metaKey) {
                 e.preventDefault();
-                const img = currentCard.querySelector('img');
-                if (img) {
-                    currentScale = Math.max(0.5, Math.min(1, currentScale - e.deltaY * 0.001));
-                    
-                    if (currentScale < 1) {
-                        img.style.objectFit = 'contain';
-                    } else {
-                        img.style.objectFit = 'cover';
-                    }
-                    img.style.transform = `scale(${currentScale})`;
-                }
+                const zoomFactor = 0.01; // Increased zoom factor significantly
+                const delta = e.deltaY;
+                const newScale = currentScale - delta * zoomFactor;
+                handleZoom(newScale);
             }
         }, { passive: false });
+
+        // Reset zoom when changing images
+        const originalDisplayCurrentImage = displayCurrentImage;
+        displayCurrentImage = function() {
+            originalDisplayCurrentImage.apply(this, arguments);
+            currentScale = 1;
+            const img = getCurrentImage();
+            if (img) {
+                img.style.transform = '';
+                img.style.objectFit = 'cover';
+            }
+        };
     }
 
     function setupScrollHandler() {
