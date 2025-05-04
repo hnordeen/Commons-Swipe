@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commons Swipe</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Main View -->
+        <div id="mainView" class="view active">
+            <header>
+                <h1>Commons Swipe</h1>
+                <button id="filterButton" class="filter-button">
+                    <i class="fas fa-filter"></i> Categories
+                </button>
+            </header>
+            <div class="image-container">
+                <div id="imageFeed" class="image-feed">
+                    <!-- Images will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories View -->
+        <div id="categoriesView" class="view">
+            <header>
+                <h1>Categories</h1>
+                <button id="backButton" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            </header>
+            <div class="categories-container">
+                <div id="categoriesList" class="categories-list">
+                    <!-- Categories will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 
