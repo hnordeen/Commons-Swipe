@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Quality_images',
         'Images_from_Wiki_Loves_Monuments_2024',
         'Images_from_Wiki_Loves_Earth_2024',
+        'Images_from_Wiki_Loves_Earth_2023',
         
         // Rest in alphabetical order
         'Agriculture',
